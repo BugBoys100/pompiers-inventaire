@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Ajouter un utilisateur</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('ajouter_utilisateur') }}">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Nom d'utilisateur</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Mot de passe</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="is_admin" name="is_admin">
+                                    <label class="form-check-label" for="is_admin">
+                                        Administrateur
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Accès aux camions</label>
+                        <div class="row">
+                            {% for camion in camions %}
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="camion_{{ camion.id }}" name="camion_{{ camion.id }}">
+                                    <label class="form-check-label" for="camion_{{ camion.id }}">
+                                        {{ camion.nom }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Liste des utilisateurs</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nom d'utilisateur</th>
+                                <th>Administrateur</th>
+                                <th>Accès aux camions</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>
+                                    {% if user.is_admin %}
+                                    <span class="badge bg-success">Oui</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Non</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.is_admin %}
+                                    Tous les camions
+                                    {% else %}
+                                    {% for access in user.camions_access %}
+                                    {{ access.camion.nom }}{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ user.id }}">
+                                        Modifier
+                                    </button>
+                                    {% if user.id != current_user.id %}
+                                    <a href="{{ url_for('supprimer_utilisateur', user_id=user.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
+                                        Supprimer
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            <!-- Modal de modification -->
+                            <div class="modal fade" id="editModal{{ user.id }}" tabindex="-1">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Modifier l'utilisateur</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form method="POST" action="{{ url_for('modifier_utilisateur', user_id=user.id) }}">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="edit_is_admin{{ user.id }}" name="is_admin" {% if user.is_admin %}checked{% endif %}>
+                                                        <label class="form-check-label" for="edit_is_admin{{ user.id }}">
+                                                            Administrateur
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Accès aux camions</label>
+                                                    <div class="row">
+                                                        {% for camion in camions %}
+                                                        <div class="col-md-4">
+                                                            <div class="form-check">
+                                                                {% set has_access = false %}
+                                                                {% if user.is_admin %}
+                                                                    {% set has_access = true %}
+                                                                {% else %}
+                                                                    {% for access in user.camions_access %}
+                                                                        {% if access.camion_id == camion.id %}
+                                                                            {% set has_access = true %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                                <input class="form-check-input" type="checkbox" id="edit_camion_{{ camion.id }}_{{ user.id }}" name="camion_{{ camion.id }}" {% if has_access %}checked{% endif %}>
+                                                                <label class="form-check-label" for="edit_camion_{{ camion.id }}_{{ user.id }}">
+                                                                    {{ camion.nom }}
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

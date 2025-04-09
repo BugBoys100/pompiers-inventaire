@@ -1,15 +1,46 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Liste des Camions</h2>
-<div class="row mt-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Liste des Camions</h2>
+    {% if current_user.is_admin %}
+    <a href="{{ url_for('ajouter_camion') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Ajouter un camion
+    </a>
+    {% endif %}
+</div>
+
+<div class="row">
     {% for camion in camions %}
     <div class="col-md-6 mb-4">
-        <div class="card">
+        <div class="card h-100">
             <div class="card-body">
-                <h5 class="card-title">{{ camion.nom }}</h5>
-                <p class="card-text">Nombre de matériels : {{ camion.materiels|length }}</p>
-                <a href="{{ url_for('detail_camion', camion_id=camion.id) }}" class="btn btn-primary">Voir les détails</a>
+                <div class="d-flex align-items-center mb-3">
+                    {% if camion.icon_path %}
+                    <img src="{{ url_for('static', filename=camion.icon_path) }}" alt="{{ camion.nom }}" class="me-3" style="max-height: 50px;">
+                    {% else %}
+                    <i class="bi bi-truck me-3" style="font-size: 2rem;"></i>
+                    {% endif %}
+                    <h5 class="card-title mb-0">{{ camion.nom }}</h5>
+                </div>
+                {% if camion.description %}
+                <p class="card-text">{{ camion.description }}</p>
+                {% endif %}
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('detail_camion', camion_id=camion.id) }}" class="btn btn-primary">
+                        Voir les détails
+                    </a>
+                    {% if current_user.is_admin %}
+                    <div>
+                        <a href="{{ url_for('modifier_camion', camion_id=camion.id) }}" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{{ url_for('supprimer_camion', camion_id=camion.id) }}" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce camion ?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
