@@ -21,8 +21,8 @@ Ce projet est une application web Flask permettant de gérer l'inventaire des é
 
 1. Clonez le dépôt :
 ```bash
-git clone [URL_DU_REPO]
-cd [NOM_DU_REPO]
+git clone https://github.com/BugBoys100/pompiers-inventaire.git
+cd pompiers-inventaire
 ```
 
 2. Créez un environnement virtuel :
@@ -77,11 +77,11 @@ Deux comptes sont créés automatiquement au premier lancement :
 
 1. Administrateur :
    - Nom d'utilisateur : `admin`
-   - Mot de passe : `admin123`
+   - Mot de passe : `admin`
 
 2. Utilisateur test :
    - Nom d'utilisateur : `test`
-   - Mot de passe : `test123`
+   - Mot de passe : `test`
 
 **Important :** Changez ces mots de passe immédiatement après la première connexion !
 
