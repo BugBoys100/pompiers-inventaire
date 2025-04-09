@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ camion.nom }}</h2>
+
+{% if current_user.is_admin %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>Ajouter un matériel</h4>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('ajouter_materiel', camion_id=camion.id) }}">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="nom" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="nom" name="nom" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="numero_serie" class="form-label">Numéro de série</label>
+                        <input type="text" class="form-control" id="numero_serie" name="numero_serie" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="date_peremption" class="form-label">Date de péremption</label>
+                        <input type="date" class="form-control" id="date_peremption" name="date_peremption" required>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h4>Matériel</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="materielTable" class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Numéro de série</th>
+                        <th>Date de péremption</th>
+                        {% if current_user.is_admin %}
+                        <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for materiel in camion.materiels %}
+                    <tr>
+                        <td>{{ materiel.nom }}</td>
+                        <td>{{ materiel.numero_serie }}</td>
+                        <td>{{ materiel.date_peremption.strftime('%d/%m/%Y') }}</td>
+                        {% if current_user.is_admin %}
+                        <td>
+                            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ materiel.id }}">
+                                Modifier
+                            </button>
+                            <a href="{{ url_for('supprimer_materiel', materiel_id=materiel.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce matériel ?')">
+                                Supprimer
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+
+                    {% if current_user.is_admin %}
+                    <!-- Modal de modification -->
+                    <div class="modal fade" id="editModal{{ materiel.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Modifier le matériel</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <form method="POST" action="{{ url_for('modifier_materiel', materiel_id=materiel.id) }}">
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="edit_nom{{ materiel.id }}" class="form-label">Nom</label>
+                                            <input type="text" class="form-control" id="edit_nom{{ materiel.id }}" name="nom" value="{{ materiel.nom }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit_numero_serie{{ materiel.id }}" class="form-label">Numéro de série</label>
+                                            <input type="text" class="form-control" id="edit_numero_serie{{ materiel.id }}" name="numero_serie" value="{{ materiel.numero_serie }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit_date_peremption{{ materiel.id }}" class="form-label">Date de péremption</label>
+                                            <input type="date" class="form-control" id="edit_date_peremption{{ materiel.id }}" name="date_peremption" value="{{ materiel.date_peremption.strftime('%Y-%m-%d') }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $('#materielTable').DataTable({
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'collection',
+                text: 'Exporter',
+                buttons: [
+                    'copy',
+                    'excel',
+                    'csv',
+                    'pdf',
+                    'print'
+                ]
+            }
+        ],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
+        },
+        order: [[2, 'asc']], // Tri par défaut sur la date de péremption
+        pageLength: 10,
+        responsive: true
+    });
+});
+</script>
+{% endblock %} 
