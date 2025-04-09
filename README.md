@@ -11,6 +11,24 @@ Ce projet est une application web Flask permettant de gérer l'inventaire des é
 - Système de permissions par camion
 - Gestion des icônes pour les camions
 
+## Interface
+
+### Page d'accueil
+![Page d'accueil](docs/img/accueil.png)
+*La page d'accueil présente un aperçu des camions disponibles avec leurs icônes et informations principales.*
+
+### Gestion des utilisateurs
+![Gestion des utilisateurs](docs/img/gestion_utilisateurs.png)
+*L'interface de gestion des utilisateurs permet d'ajouter, modifier et supprimer des utilisateurs, ainsi que de gérer leurs permissions par camion.*
+
+### Vue des véhicules
+![Vue des véhicules](docs/img/vue_vehicules.png)
+*La vue des véhicules affiche la liste des camions avec leurs détails et permet d'accéder à leur inventaire.*
+
+### Gestion de l'inventaire
+![Gestion de l'inventaire](docs/img/gestion_inventaire.png)
+*L'interface de gestion de l'inventaire permet d'ajouter, modifier et supprimer des équipements pour chaque camion.*
+
 ## Prérequis
 
 - Python 3.10 ou supérieur
